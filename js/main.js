@@ -112,7 +112,7 @@
     });
 
 
-    // // Modal Video
+    //  Modal Video
     // $(document).ready(function () {
     //     var $videoSrc;
     //     $('.btn-play').click(function () {
@@ -152,162 +152,75 @@
 
 
 
+// Initialize an empty array for the cart
+let cart = [];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    // Handling quantity increase/decrease
-    const decreaseButtons = document.querySelectorAll(".btn-minus");
-    const increaseButtons = document.querySelectorAll(".btn-plus");
-    const quantityInputs = document.querySelectorAll("input[type='text']");
-    
-    // Handling the quantity
-    decreaseButtons.forEach((button, index) => {
-        button.addEventListener("click", function () {
-            let quantityInput = quantityInputs[index];
-            let currentQuantity = parseInt(quantityInput.value);
-            if (currentQuantity > 1) {
-                quantityInput.value = currentQuantity - 1;
-                updateTotalPrice();
-            }
-        });
-    });
-    
-    increaseButtons.forEach((button, index) => {
-        button.addEventListener("click", function () {
-            let quantityInput = quantityInputs[index];
-            let currentQuantity = parseInt(quantityInput.value);
-            quantityInput.value = currentQuantity + 1;
-            updateTotalPrice();
-        });
-    });
-    
-    // Handling the removal of items from the cart
-    const removeButtons = document.querySelectorAll(".fa-times");
-    removeButtons.forEach(button => {
-        button.addEventListener("click", function () {
-            button.closest("tr").remove();
-            updateTotalPrice();
-        });
-    });
-    
-    // Function to update the total price
-    function updateTotalPrice() {
-        let total = 0;
-        const prices = document.querySelectorAll(".table td:nth-child(3) p");
-        const quantities = document.querySelectorAll(".table input[type='text']");
+// Add product to cart
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', (event) => {
+        const productName = event.target.getAttribute('data-product');
+        const productPrice = parseFloat(event.target.getAttribute('data-price'));
         
-        prices.forEach((priceElement, index) => {
-            let price = parseFloat(priceElement.textContent.replace("$", ""));
-            let quantity = parseInt(quantities[index].value);
-            total += price * quantity;
-        });
-        
-        // Update subtotal
-        const subtotalElement = document.querySelector(".d-flex .mb-0 p");
-        subtotalElement.textContent = `$${total.toFixed(2)}`;
-        
-        // Update total
-        const totalElement = document.querySelector(".py-4.mb-4 p");
-        totalElement.textContent = `$${(total + 3).toFixed(2)}`;  // Adding shipping cost
-    }
-
-    // Initial update of the total price on page load
-    updateTotalPrice();
+        // Add product to cart array
+        cart.push({ product: productName, price: productPrice });
+        updateCart();
+    });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Ensure that the DOM is fully loaded before interacting with it
+// Update the cart modal and cart button
+function updateCart() {
+    const cartButton = document.getElementById('cart-button');
+    const cartModal = document.getElementById('cart-modal');
+    const cartItems = document.getElementById('cart-items');
+    const totalDisplay = document.getElementById('total');
     
-    // Select elements for Subtotal and Total
-    const subtotalElement = document.querySelector(".d-flex .mb-0"); // Subtotal element
-    const totalElement = document.querySelector(".py-4.mb-4 .mb-0"); // Total element
-    
-    // Ensure elements exist before modifying them
-    if (subtotalElement && totalElement) {
-        // Calculate your totals dynamically (this is an example, adjust as needed)
-        let total = 96.00; // Example initial total
-        let shippingCost = 3.00;
-        let finalTotal = total + shippingCost;
+    // Update cart button with the number of items
+    cartButton.textContent = `Cart (${cart.length})`;
 
-        // Update the subtotal and total
-        subtotalElement.textContent = `$${total.toFixed(2)}`;
-        totalElement.textContent = `$${finalTotal.toFixed(2)}`;
+    // Display cart items in the modal
+    cartItems.innerHTML = '';  // Clear previous items
+    cart.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.classList.add('cart-item');
+        itemElement.innerHTML = `${item.product} - $${item.price.toFixed(2)} 
+            <button class="remove-item" data-product="${item.product}">Remove</button>`;
+        cartItems.appendChild(itemElement);
+    });
+
+    // Update total price
+    const total = cart.reduce((acc, item) => acc + item.price, 0);
+    totalDisplay.textContent = `Total: $${total.toFixed(2)}`;
+}
+
+// Open/close cart modal
+document.getElementById('cart-button').addEventListener('click', () => {
+    document.getElementById('cart-modal').style.display = 'flex';
+});
+
+document.getElementById('close-cart').addEventListener('click', () => {
+    document.getElementById('cart-modal').style.display = 'none';
+});
+
+// Clear cart
+document.getElementById('clear-cart').addEventListener('click', () => {
+    cart = [];
+    updateCart();
+});
+
+// Checkout (just for demonstration)
+document.getElementById('checkout').addEventListener('click', () => {
+    if (cart.length === 0) {
+        alert('Your cart is empty. Add items to the cart first.');
     } else {
-        console.error("Subtotal or Total element not found!");
+        alert('Proceeding to checkout...');
+    }
+});
+
+// Remove item from cart
+document.getElementById('cart-items').addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-item')) {
+        const productToRemove = event.target.getAttribute('data-product');
+        cart = cart.filter(item => item.product !== productToRemove);
+        updateCart();
     }
 });
